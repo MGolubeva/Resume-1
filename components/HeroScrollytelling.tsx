@@ -7,9 +7,9 @@ import { Download, ArrowRight } from 'lucide-react';
 
 const FRAME_COUNT = 148;
 
-// We assume the images are placed in public/frames/frame_000_delay-0.033s.jpg etc.
-// If they are not found, we will draw a fallback animation.
-const getImageUrl = (index: number) => `/frames/frame_${index.toString().padStart(3, '0')}_delay-0.033s.jpg`;
+// We assume the images are placed in the public GitHub repository
+// This prevents local deletion from breaking the production site during commits
+const getImageUrl = (index: number) => `https://raw.githubusercontent.com/MGolubeva/Resume-1/main/public/frames/frame_${index.toString().padStart(3, '0')}_delay-0.033s.jpg`;
 
 export default function HeroScrollytelling() {
   const containerRef = useRef<HTMLDivElement>(null);
