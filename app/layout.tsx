@@ -33,7 +33,7 @@ export const metadata: Metadata = {
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable} scroll-smooth`}>
-      <body className="bg-bg text-text font-sans antialiased selection:bg-accent selection:text-bg overflow-x-hidden" suppressHydrationWarning>
+      <body className="bg-bg text-text font-sans antialiased selection:bg-accent selection:text-bg" suppressHydrationWarning>
         <div className="bg-noise" />
         {children}
       </body>

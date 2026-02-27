@@ -11,22 +11,32 @@ export function useImagePreloader(frameCount: number, getImageUrl: (index: numbe
     let isMounted = true;
     const loadedImages: HTMLImageElement[] = [];
     let currentLoadedCount = 0;
+    const loadedIndices = new Set<number>();
+
+    const handleLoad = (index: number) => {
+      if (!isMounted) return;
+      if (loadedIndices.has(index)) return; // Prevent double counting
+      
+      loadedIndices.add(index);
+      currentLoadedCount++;
+      setLoadedCount(currentLoadedCount);
+      
+      if (currentLoadedCount === frameCount) {
+        setIsLoaded(true);
+      }
+    };
 
     for (let i = 0; i < frameCount; i++) {
       const img = new Image();
-      img.src = getImageUrl(i);
       
-      const handleLoad = () => {
-        if (!isMounted) return;
-        currentLoadedCount++;
-        setLoadedCount(currentLoadedCount);
-        if (currentLoadedCount === frameCount) {
-          setIsLoaded(true);
-        }
-      };
+      img.onload = () => handleLoad(i);
+      img.onerror = () => handleLoad(i); // Count as loaded even on error to prevent blocking
+      
+      img.src = getImageUrl(i);
 
-      img.onload = handleLoad;
-      img.onerror = handleLoad; // Count as loaded even on error to prevent blocking
+      if (img.complete) {
+        handleLoad(i);
+      }
 
       loadedImages.push(img);
     }
