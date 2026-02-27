@@ -12,7 +12,7 @@ import ScrollToTop from '@/components/ScrollToTop';
 
 export default function Home() {
   return (
-    <main className="min-h-screen w-full bg-bg overflow-x-hidden">
+    <main className="min-h-screen w-full bg-bg overflow-x-clip">
       <ScrollToTop />
       <Header />
       <HeroScrollytelling />

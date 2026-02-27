@@ -28,14 +28,19 @@ export function useImagePreloader(frameCount: number, getImageUrl: (index: numbe
 
     for (let i = 0; i < frameCount; i++) {
       const img = new Image();
-      
-      img.onload = () => handleLoad(i);
-      img.onerror = () => handleLoad(i); // Count as loaded even on error to prevent blocking
-      
       img.src = getImageUrl(i);
 
-      if (img.complete) {
-        handleLoad(i);
+      // Use decode() to ensure the image is fully downloaded and decoded
+      // This prevents issues in Safari/Vercel where naturalWidth remains 0
+      if (typeof img.decode === 'function') {
+        img.decode()
+          .then(() => handleLoad(i))
+          .catch(() => handleLoad(i)); // Count as loaded even on error to prevent blocking
+      } else {
+        // Fallback for older browsers
+        img.onload = () => handleLoad(i);
+        img.onerror = () => handleLoad(i);
+        if (img.complete) handleLoad(i);
       }
 
       loadedImages.push(img);

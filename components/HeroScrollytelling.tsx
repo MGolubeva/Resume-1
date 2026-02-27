@@ -45,18 +45,24 @@ export default function HeroScrollytelling() {
       const index = Math.round(frameIndex.get());
       const img = images[index];
 
-      if (img && img.complete && img.naturalWidth !== 0) {
+      if (img && img.complete) {
         // Set canvas resolution to match image
-        if (canvas.width !== img.naturalWidth || canvas.height !== img.naturalHeight) {
-          canvas.width = img.naturalWidth;
-          canvas.height = img.naturalHeight;
+        if (img.naturalWidth !== 0 && img.naturalHeight !== 0) {
+          if (canvas.width !== img.naturalWidth || canvas.height !== img.naturalHeight) {
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+          }
         }
         
         // Clear canvas
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
         // Draw image at full resolution
-        ctx.drawImage(img, 0, 0);
+        try {
+          ctx.drawImage(img, 0, 0);
+        } catch (e) {
+          // Ignore if image is not fully decoded yet
+        }
       } else {
         // Fallback drawing if image is missing
         if (canvas.width !== 800 || canvas.height !== 600) {
