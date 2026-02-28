@@ -1,5 +1,3 @@
-'use client';
-
 import { useState, useEffect } from 'react';
 
 export function useImagePreloader(frameCount: number, getImageUrl: (index: number) => string) {
@@ -8,50 +6,43 @@ export function useImagePreloader(frameCount: number, getImageUrl: (index: numbe
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    let isMounted = true;
-    const loadedImages: HTMLImageElement[] = [];
-    let currentLoadedCount = 0;
-    const loadedIndices = new Set<number>();
-
-    const handleLoad = (index: number) => {
-      if (!isMounted) return;
-      if (loadedIndices.has(index)) return; // Prevent double counting
-      
-      loadedIndices.add(index);
-      currentLoadedCount++;
-      setLoadedCount(currentLoadedCount);
-      
-      if (currentLoadedCount === frameCount) {
-        setIsLoaded(true);
-      }
-    };
+    let loaded = 0;
+    const imgArray: HTMLImageElement[] = [];
+    let isCancelled = false;
 
     for (let i = 0; i < frameCount; i++) {
       const img = new Image();
+      img.crossOrigin = "anonymous"; // Important for canvas drawing from external URLs
+      
+      img.onload = () => {
+        if (isCancelled) return;
+        loaded++;
+        setLoadedCount(loaded);
+        if (loaded === frameCount) {
+          setIsLoaded(true);
+        }
+      };
+      
+      img.onerror = () => {
+        if (isCancelled) return;
+        console.warn(`Failed to load image: ${img.src}`);
+        loaded++; // Still count it so we don't block forever
+        setLoadedCount(loaded);
+        if (loaded === frameCount) {
+          setIsLoaded(true);
+        }
+      };
+
       img.src = getImageUrl(i);
-
-      // Use decode() to ensure the image is fully downloaded and decoded
-      // This prevents issues in Safari/Vercel where naturalWidth remains 0
-      if (typeof img.decode === 'function') {
-        img.decode()
-          .then(() => handleLoad(i))
-          .catch(() => handleLoad(i)); // Count as loaded even on error to prevent blocking
-      } else {
-        // Fallback for older browsers
-        img.onload = () => handleLoad(i);
-        img.onerror = () => handleLoad(i);
-        if (img.complete) handleLoad(i);
-      }
-
-      loadedImages.push(img);
+      imgArray.push(img);
     }
 
-    setImages(loadedImages);
+    setImages(imgArray);
 
     return () => {
-      isMounted = false;
+      isCancelled = true;
     };
   }, [frameCount, getImageUrl]);
 
-  return { images, loadedCount, isLoaded };
+  return { images, isLoaded, loadedCount };
 }

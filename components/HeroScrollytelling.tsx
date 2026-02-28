@@ -7,9 +7,8 @@ import { Download, ArrowRight } from 'lucide-react';
 
 const FRAME_COUNT = 148;
 
-// We assume the images are placed in the public GitHub repository
-// This prevents local deletion from breaking the production site during commits
-const getImageUrl = (index: number) => `https://raw.githubusercontent.com/MGolubeva/Resume-1/main/public/frames/frame_${index.toString().padStart(3, '0')}_delay-0.033s.jpg`;
+// Cloudinary URL pattern.
+const getImageUrl = (index: number) => `https://res.cloudinary.com/dbfx1ieh8/image/upload/v1772282369/frame_${index.toString().padStart(3, '0')}_delay-0.033s.jpg`;
 
 export default function HeroScrollytelling() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -45,13 +44,11 @@ export default function HeroScrollytelling() {
       const index = Math.round(frameIndex.get());
       const img = images[index];
 
-      if (img && img.complete) {
+      if (img && img.complete && img.naturalWidth !== 0) {
         // Set canvas resolution to match image
-        if (img.naturalWidth !== 0 && img.naturalHeight !== 0) {
-          if (canvas.width !== img.naturalWidth || canvas.height !== img.naturalHeight) {
-            canvas.width = img.naturalWidth;
-            canvas.height = img.naturalHeight;
-          }
+        if (canvas.width !== img.naturalWidth || canvas.height !== img.naturalHeight) {
+          canvas.width = img.naturalWidth;
+          canvas.height = img.naturalHeight;
         }
         
         // Clear canvas
@@ -64,7 +61,7 @@ export default function HeroScrollytelling() {
           // Ignore if image is not fully decoded yet
         }
       } else {
-        // Fallback drawing if image is missing
+        // Fallback drawing if image is missing or failed to load
         if (canvas.width !== 800 || canvas.height !== 600) {
           canvas.width = 800;
           canvas.height = 600;
@@ -85,7 +82,7 @@ export default function HeroScrollytelling() {
         ctx.font = '20px sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText(`Frame ${index + 1} / ${FRAME_COUNT}`, canvas.width / 2, canvas.height / 2 + 100);
-        ctx.fillText('Please add images to public/frames/', canvas.width / 2, canvas.height / 2 + 130);
+        ctx.fillText('Image failed to load from Cloudinary', canvas.width / 2, canvas.height / 2 + 130);
       }
 
       animationFrameId = requestAnimationFrame(render);
@@ -131,11 +128,11 @@ export default function HeroScrollytelling() {
             className="w-full h-full object-cover md:object-contain md:object-right"
           />
           {/* Soft Edge Overlays for seamless blending */}
-          <div className="absolute inset-0 bg-gradient-to-r from-bg/40 via-transparent to-transparent z-10" />
-          <div className="absolute inset-0 bg-gradient-to-t from-bg/40 via-transparent to-transparent z-10" />
-          <div className="absolute inset-0 bg-gradient-to-b from-bg/40 via-transparent to-transparent z-10" />
+          <div className="absolute inset-0 bg-gradient-to-r from-bg/60 via-bg/20 to-transparent z-10" />
+          <div className="absolute inset-0 bg-gradient-to-t from-bg/80 via-transparent to-transparent z-10" />
+          <div className="absolute inset-0 bg-gradient-to-b from-bg/80 via-transparent to-transparent z-10" />
           <div className="absolute inset-0 bg-gradient-to-l from-bg/40 via-transparent to-transparent z-10" />
-          <div className="absolute inset-0 shadow-[inset_0_0_100px_rgba(0,0,0,0.6)] z-10" />
+          <div className="absolute inset-0 shadow-[inset_0_0_100px_rgba(0,0,0,0.8)] z-10" />
         </div>
 
         {/* Text Content */}
@@ -143,8 +140,8 @@ export default function HeroScrollytelling() {
           <motion.div style={{ y: textY, opacity: textOpacity }}>
             <motion.div
               initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: isLoaded ? 1 : 0, y: isLoaded ? 0 : 30 }}
-              transition={{ duration: 1.2, delay: isLoaded ? 0.4 : 0, ease: [0.16, 1, 0.3, 1] }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
             >
             <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl font-normal leading-tight mb-4 whitespace-nowrap">
               Mariia Golubieva

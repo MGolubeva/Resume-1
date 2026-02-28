@@ -17,6 +17,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**', // This allows any path under the hostname
       },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
   webpack: (config, {dev}) => {
@@ -52,7 +58,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://picsum.photos; font-src 'self' data:; connect-src 'self'",
+            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://picsum.photos https://res.cloudinary.com; font-src 'self' data:; connect-src 'self'",
           },
         ],
       },
