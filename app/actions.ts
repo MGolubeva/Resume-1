@@ -40,7 +40,7 @@ export async function sendContactEmail(formData: FormData) {
     const apiKey = process.env.RESEND_API_KEY;
     if (!apiKey) {
       console.error('RESEND_API_KEY is not set in environment variables');
-      return { error: 'Email service is not configured properly (missing API key).' };
+      return { error: 'Email service is not configured properly (API key missing in production).' };
     }
 
     const resend = new Resend(apiKey);
