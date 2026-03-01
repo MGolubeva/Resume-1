@@ -37,16 +37,19 @@ export async function sendContactEmail(formData: FormData) {
     rateLimitMap.set(ip, userRateData);
 
     // 3. Send Email
-    const apiKey = process.env.RESEND_API_KEY;
+    // Access dynamically to prevent any potential build-time optimization
+    const keyName = 'RESEND_API_KEY';
+    const apiKey = process.env[keyName];
+    
     if (!apiKey) {
       // Debugging: Check if any key containing 'RESEND' exists (case-insensitive)
       const relatedKeys = Object.keys(process.env)
         .filter(k => k.toUpperCase().includes('RESEND'))
         .join(', ');
         
-      console.error('RESEND_API_KEY is not set in environment variables. Found keys:', relatedKeys);
+      console.error(`${keyName} is not set in environment variables. Found keys:`, relatedKeys);
       return { 
-        error: `API key missing in production. Related secrets found: [${relatedKeys || 'None'}]. Please ensure the secret is named exactly RESEND_API_KEY with no spaces.` 
+        error: `API key missing in production. Related secrets found: [${relatedKeys || 'None'}]. Please ensure the secret is named exactly ${keyName} with no spaces.` 
       };
     }
 
